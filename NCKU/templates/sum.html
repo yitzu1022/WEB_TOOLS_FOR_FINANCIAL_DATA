@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sum</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/sum.css' %}" />
+  </head>
+  <body>
+    <h1>Sum</h1>
+    <form onsubmit="return false;">
+      <input type="number" id="num1" placeholder="Enter first number" />
+      <span>+</span>
+      <input type="number" id="num2" placeholder="Enter second number" />
+      <button id="btn_calculate">Calculate</button>
+    </form>
+    <div class="result" id="result"></div>
+
+    <script src="{% static 'js/sum.js' %}"></script>
+  </body>
+</html>
