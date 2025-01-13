@@ -21,7 +21,6 @@ from HW1 import views as HW1_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
     path('sum/', sum_view.sum),
     path('HW1/', HW1_view.HW1),
     path('ajax_sum/', sum_view.ajax_sum),

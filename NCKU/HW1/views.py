@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-<<<<<<< HEAD
 import yfinance as yf
 import pandas as pd
 import talib
@@ -54,6 +53,10 @@ def showStock(symbol="AAPL", start="2024-12-1", end="2025-1-10",interval="1d"):
     
     # return JsonResponse(data)
 
+def ajax_showStock(request):
+    a=int(request.GET['d'])
+    response={'sum':a}
+    return JsonResponse(response)
 showStock()
     
    
