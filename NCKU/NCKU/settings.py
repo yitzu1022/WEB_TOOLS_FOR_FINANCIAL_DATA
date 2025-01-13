@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'sum',
+    'HW1',
 ]
 
 MIDDLEWARE = [
