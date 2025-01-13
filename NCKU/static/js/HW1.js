@@ -30,7 +30,9 @@ $(document).ready(function () {
         // 假設後端回傳一個帶有 "message" 的 JSON 物件
         const dataList = response.data;
         console.log(dataList);
-        fetchDara(dataList);
+        fetchTable(dataList);
+        // fetchDara(dataList);
+        // fetchTable(dataList);
       },
       error: function (xhr, status, error) {
         console.error("Error:", status, error);
@@ -56,13 +58,121 @@ function afterSetExtremes(e) {
     .catch((error) => console.error(error.message));
 }
 
-function fetchDara(data) {
-  //   fetch(dataURL)
-  //     .then((res) => res.ok && res.json())
-  //     .then((data) => {
+// function fetchDara(data) {
+//   //   fetch(dataURL)
+//   //     .then((res) => res.ok && res.json())
+//   //     .then((data) => {
+//   // MA 計算：基於成交量 (Volume)
+//   const maPeriod = $("#d_num").value(); // MA 的時間周期
+//   const maVolumeData = [];
+//   for (let i = maPeriod - 1; i < data.length; i++) {
+//     const sum = data
+//       .slice(i - maPeriod + 1, i + 1)
+//       .reduce((acc, point) => acc + point[5], 0); // 第 5 個索引是成交量
+//     maVolumeData.push([data[i][0], sum / maPeriod]); // 時間戳和移動平均值
+//   }
+
+//   // 將成交量柱狀圖顏色根據 MA 判斷
+//   const volumeData = data.map((point, index) => {
+//     // 如果前面的數據不足 MA 的周期，返回原始值 (顏色灰色)
+//     if (index < maPeriod - 1) {
+//       return {
+//         x: point[0], // 時間戳
+//         y: point[5], // 成交量
+//         color: "gray", // 預設為灰色
+//       };
+//     }
+
+//     // 取得對應的 MA 值
+//     const maValue = maVolumeData[index - maPeriod + 1][1];
+//     return {
+//       x: point[0],
+//       y: point[5],
+//       color: point[5] > maValue ? "red" : "gray", // 高於均線為紅色，否則為灰色
+//     };
+//   });
+
+//   // 建立圖表
+//   Highcharts.stockChart("container", {
+//     chart: {
+//       zooming: { type: "x" },
+//     },
+
+//     title: {
+//       text: "AAPL Candlestick, Volume and MA",
+//       align: "left",
+//     },
+
+//     xAxis: {
+//       minRange: 3600 * 1000, // 一小時
+//     },
+
+//     yAxis: [
+//       {
+//         labels: {
+//           align: "left",
+//         },
+//         title: {
+//           text: "Price",
+//         },
+//         height: "60%",
+//         lineWidth: 2,
+//       },
+//       {
+//         labels: {
+//           align: "left",
+//         },
+//         title: {
+//           text: "Volume",
+//         },
+//         top: "65%",
+//         height: "35%",
+//         offset: 0,
+//         lineWidth: 2,
+//       },
+//     ],
+
+//     series: [
+//       {
+//         type: "candlestick",
+//         name: "AAPL",
+//         data: data,
+//         id: "aapl",
+//         tooltip: {
+//           valueDecimals: 2,
+//         },
+//       },
+//       {
+//         type: "column",
+//         name: "Volume",
+//         data: volumeData, // 使用顏色分類後的成交量數據
+//         yAxis: 1,
+//       },
+//       {
+//         type: "line",
+//         name: "Volume MA (14)",
+//         data: maVolumeData, // 使用基於成交量計算的 MA 數據
+//         yAxis: 1, // 將 MA 線繪製在成交量的 Y 軸上
+//         color: "blue",
+//         tooltip: {
+//           valueDecimals: 2,
+//         },
+//       },
+//     ],
+//   });
+// }
+// // )
+// //     .catch((error) => console.error("Data fetch error:", error));
+
+// // table的部分
+
+function fetchTable(data) {
   // MA 計算：基於成交量 (Volume)
-  const maPeriod = $("#d_num").value(); // MA 的時間周期
+  const maPeriod = 5; // MA 的時間周期
   const maVolumeData = [];
+  const highVolumeRows = []; // 儲存爆大量的表格數據
+
+  // 計算 5 日移動平均線
   for (let i = maPeriod - 1; i < data.length; i++) {
     const sum = data
       .slice(i - maPeriod + 1, i + 1)
@@ -158,6 +268,31 @@ function fetchDara(data) {
       },
     ],
   });
+
+  // 篩選出爆大量的數據
+  for (let i = maPeriod - 1; i < data.length; i++) {
+    const volume = data[i][5]; // 當日成交量
+    const maValue = maVolumeData[i - maPeriod + 1][1]; // 對應的 5 日均線
+    if (volume > maValue) {
+      highVolumeRows.push({
+        date: new Date(data[i][0]).toISOString().split("T")[0], // 格式化日期
+        volume: volume.toLocaleString(), // 格式化為千分位
+        maValue: Math.round(maValue).toLocaleString(), // 格式化為千分位
+      });
+    }
+  }
+  // 將數據插入到表格中
+  const tableBody = $("#highVolumeTable tbody");
+  highVolumeRows.forEach((row) => {
+    tableBody.append(`
+                        <tr>
+                            <td>${row.date}</td>
+                            <td>${row.volume}</td>
+                            <td>${row.maValue}</td>
+                        </tr>
+                    `);
+  });
+
+  // 初始化 DataTable
+  $("#highVolumeTable").DataTable();
 }
-// )
-//     .catch((error) => console.error("Data fetch error:", error));

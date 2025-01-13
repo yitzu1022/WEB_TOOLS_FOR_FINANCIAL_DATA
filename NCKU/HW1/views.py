@@ -14,7 +14,7 @@ def showStock(symbol="AAPL", start="2024-12-1", end="2025-1-10",interval="1d"):
     df_with_index = df_reset.reset_index().values.tolist()
     print(df_with_index)
     df_with_date_str = [
-    [row[0].timestamp()] + row[1:] for row in df_with_index]
+    [row[0].timestamp()*1000] + row[1:] for row in df_with_index]
     print(df_with_date_str)
     return df_with_date_str
      
