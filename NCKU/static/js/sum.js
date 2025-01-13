@@ -1,5 +1,6 @@
 $(document).ready(function () {
   $("#btn_calculate").click(function () {
+    console.log("123")
     const num1 = parseFloat($("#num1").val());
     const num2 = parseFloat($("#num2").val());
 

@@ -16,10 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from sum import views
+from sum import views as sum_view
+from HW1 import views as HW1_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('sum/', views.sum),
-    path('ajax_sum/', views.ajax_sum),
+
+    path('sum/', sum_view.sum),
+    path('HW1/', HW1_view.HW1),
+    path('ajax_sum/', sum_view.ajax_sum),
+    path('ajax_showStock/', HW1_view.ajax_showStock),
 ]

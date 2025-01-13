@@ -1,0 +1,50 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/HW1.css' %}" />
+</head>
+<body>
+    <div id="container_input">
+        <h3>Method</h3>
+        <form id="inductorForm" onsubmit="return false;">
+            <div>
+                <label for="stockInductor" class="form-label">Stock_inductor</label>
+                <input type="text" class="form-control" id="stockInductor">
+            </div>
+            <div class="row">
+                <div>
+                    <label for="startDateInductor" class="form-label">Start_date_inductor</label>
+                    <input type="date" class="form-control" id="startDateInductor">
+                </div>
+                <div>
+                    <label for="endDateInductor" class="form-label">End_date_inductor</label>
+                    <input type="date" class="form-control" id="endDateInductor">
+                </div>
+                <div>
+                    <label for="d_num" class="form-label">d</label>
+                    <input type="number" class="form-control" id="d_num">
+                </div>
+            </div>
+            <button type="submit" id="submitButton">Submit</button>
+        </form>
+        <!-- 隨便先寫的 -->
+        <div class="result" id="result"></div> 
+    </div>
+
+    
+    <!-- 圖片部分 -->
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    
+    <div id="container"></div>   
+    
+    <script src="{% static 'js/HW1.js' %}"></script>
+</body>
+</html>
