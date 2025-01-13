@@ -61,7 +61,7 @@ function fetchDara(data) {
   //     .then((res) => res.ok && res.json())
   //     .then((data) => {
   // MA 計算：基於成交量 (Volume)
-  const maPeriod = 5; // MA 的時間周期
+  const maPeriod = $("#d_num").value(); // MA 的時間周期
   const maVolumeData = [];
   for (let i = maPeriod - 1; i < data.length; i++) {
     const sum = data
