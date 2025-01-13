@@ -21,6 +21,5 @@ from sum import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('sum/', views.sum),
-    path('HW1/', views.HW1),
     path('ajax_sum/', views.ajax_sum),
 ]
