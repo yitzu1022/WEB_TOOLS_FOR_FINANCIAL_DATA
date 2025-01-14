@@ -1,3 +1,9 @@
-
+__pycache__/
+*.py[cod]
+# 忽略虛擬環境
+venv/
+.venv/
 *.sqlite3
 NCKU/HW1/__pycache__/views.cpython-312.pyc
+# 忽略快取資料夾
+NCKU/HW1/utils/cache/

@@ -22,10 +22,7 @@ class stockCrawing:
         highest=mean*20
         average=mean*30
         return [lowest, average, highest]
-    def calHLPmethod(self,tableReslut=pd.DataFrame({0:[1,2,3,4,5,6,7,8],
-                                                    1:[1,2,3,4,5,6,7,8],
-                                                    2:[1,2,3,4,5,6,7,8],
-                                                    3:[1,2,3,4,5,6,7,8],})):
+    def calHLPmethod(self,tableReslut):
         lowest=float(tableReslut['4'].mean())
         highest=float(tableReslut['3'].mean())
         average=float(tableReslut['6'].mean())
@@ -82,8 +79,8 @@ class stockCrawing:
             div_df  = div_df .dropna(subset=[0])  # 刪除包含 NA / NaN 的行
             div_df  = div_df [div_df [0].str.match(r'^\d{4}$')]
             div_df  = div_df .reset_index(drop=True)
-            print(div_df )
-            div_df.to_csv('dividend.csv', index=False)
+            print(div_df)
+            div_df.to_csv(os.path.join('cache', f'{self.stock}_dividend.csv'), index=False)
             # df.insert(0, "Sheet", option.text)  # 加入 Sheet 名稱作為標記
             # all_data = pd.concat([all_data, df], ignore_index=True)
         except Exception as e:
@@ -92,8 +89,8 @@ class stockCrawing:
         finally:
             # 關閉瀏覽器
             driver.quit()
-        return div_df 
-    def getStockHLP_ERP_PBR(self):
+        
+    def getStockHLP_PER_PBR(self):
         options = webdriver.ChromeOptions()
         prefs = {
             "profile.default_content_setting_values.notifications": 2,  # 禁用通知
@@ -133,7 +130,7 @@ class stockCrawing:
             df = df[df[0].str.match(r'^\d{4}$')]
             df = df.reset_index(drop=True)
             print(df)
-            df.to_csv('HLP_ERP_PBR.csv', index=False)
+            df.to_csv(os.path.join('cache', f'{self.stock}_HLP_PER_PBR.csv'), index=False)
             # df.insert(0, "Sheet", option.text)  # 加入 Sheet 名稱作為標記
             # all_data = pd.concat([all_data, df], ignore_index=True)
         except Exception as e:
@@ -142,53 +139,51 @@ class stockCrawing:
         finally:
             # 關閉瀏覽器
             driver.quit()
-        return df
+        
         
     def run(self):
         
-        # cache_dir = 'cache'
-        # # 如果快取資料夾不存在，則創建它
-        # if not os.path.exists(cache_dir):
-        #     os.makedirs(cache_dir)
-        # if not os.path.exists(os.path.join(cache_dir,f'{}dividend.csv')):
-        #     self.getStockDivdend()
-        # if not os.path.exists('HLP_ERP_PBR.csv'):
-        #     self.getStockHLP_ERP_PBR()
-        #StockDivdend=self.getStockDivdend()
-        StockDivdend=pd.read_csv('dividend.csv')
-        HLP_ERP_PBR=pd.read_csv('HLP_ERP_PBR.csv')
-        # #HLA_ERP_PBR=self.getStockHLP_ERP_PBR()
+        cache_dir = 'cache'
+        # 如果快取資料夾不存在，則創建它
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
+        if not os.path.exists(os.path.join(cache_dir,f'{self.stock}_dividend.csv')):
+            self.getStockDivdend()
+        StockDivdend=pd.read_csv(os.path.join(cache_dir,f'{self.stock}_dividend.csv'))
+        if not os.path.exists(os.path.join(cache_dir,f'{self.stock}_HLP_PER_PBR.csv')):
+            self.getStockHLP_PER_PBR()
+        HLP_PER_PBR=pd.read_csv(os.path.join(cache_dir,f'{self.stock}_HLP_PER_PBR.csv'))
         Dividend_result=StockDivdend.iloc[2:2+self.year,7].reset_index(drop=True).astype(float).to_list()
-        HLP_result = HLP_ERP_PBR.iloc[1:1+self.year, 3:7].replace('-', pd.NA).dropna().reset_index(drop=True).astype(float)
-        PER_result=HLP_ERP_PBR.iloc[1:1+self.year,9:13].replace('-', pd.NA).dropna().reset_index(drop=True).astype(float)
-        PBR_result=HLP_ERP_PBR.iloc[1:1+self.year,13:17].replace('-', pd.NA).dropna().reset_index(drop=True).astype(float)
+        HLP_result = HLP_PER_PBR.iloc[1:1+self.year, 3:7].replace('-', pd.NA).dropna().reset_index(drop=True).astype(float)
+        PER_result=HLP_PER_PBR.iloc[1:1+self.year,9:13].replace('-', pd.NA).dropna().reset_index(drop=True).astype(float)
+        PBR_result=HLP_PER_PBR.iloc[1:1+self.year,13:17].replace('-', pd.NA).dropna().reset_index(drop=True).astype(float)
         Dividend_price=self.calDividendmethod(Dividend_result)
-        HLP_price=self.calHLPmethod(HLP_result)        
-        ERP_price=self.calPERmethod(PER_result)
+        HLP_price=self.calHLPmethod(HLP_result) 
+        PER_price=self.calPERmethod(PER_result)
         PBR_price=self.calBPSmethod(PBR_result)
-        guli_data=Dividend_result
-        selected_columns = pd.concat([HLP_ERP_PBR.iloc[1:, 0], HLP_ERP_PBR.iloc[1:, 3:7]], axis=1)
-        HLP_data=selected_columns.replace('-', pd.NA).dropna().reset_index(drop=True).astype(float).values.tolist()
-        selected_columns = pd.concat([HLP_ERP_PBR.iloc[1:, 0], HLP_ERP_PBR.iloc[1:, 9:13]], axis=1)
-        PER_data=selected_columns.replace('-', pd.NA).dropna().reset_index(drop=True).astype(float).values.tolist()
-        selected_columns = pd.concat([HLP_ERP_PBR.iloc[1:, 0], HLP_ERP_PBR.iloc[1:, 13:17]], axis=1)
-        PBR_data=selected_columns.replace('-', pd.NA).dropna().reset_index(drop=True).astype(float).values.tolist()
         
+        guli_data=Dividend_result
+        selected_columns = pd.concat([HLP_PER_PBR.iloc[1:, 0], HLP_PER_PBR.iloc[1:, 3:7]], axis=1)
+        HLP_data=selected_columns.replace('-', pd.NA).dropna().reset_index(drop=True).astype(float).values.tolist()
+        selected_columns = pd.concat([HLP_PER_PBR.iloc[1:, 0], HLP_PER_PBR.iloc[1:, 9:13]], axis=1)
+        PER_data=selected_columns.replace('-', pd.NA).dropna().reset_index(drop=True).astype(float).values.tolist()
+        selected_columns = pd.concat([HLP_PER_PBR.iloc[1:, 0], HLP_PER_PBR.iloc[1:, 13:17]], axis=1)
+        PBR_data=selected_columns.replace('-', pd.NA).dropna().reset_index(drop=True).astype(float).values.tolist()
         data={
             '股利法':Dividend_price,
             '高低價法':HLP_price,
             '本淨比法':PBR_price,
-            '本益比法':ERP_price,
+            '本益比法':PER_price,
             'Guli_data':guli_data,
             'HighLow_data':HLP_data,
             'Benjing_data':PBR_data,
             'Benyi_data':PER_data
         }
-        json_data = json.dumps(data, ensure_ascii=False, indent=4)
-        with open('data.json', 'w', encoding='utf-8') as json_file:
-            json_file.write(json_data)
-            json_file.close()
-        return json_data
+        # json_data = json.dumps(data, ensure_ascii=False, indent=4)
+        # with open('data.json', 'w', encoding='utf-8') as json_file:
+        #     json_file.write(json_data)
+        #     json_file.close()
+        # return json_data
 if __name__ == '__main__':
     stock = stockCrawing()
     stock.run()
