@@ -5,17 +5,19 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 import pandas as pd
 import time
+import json
+import os
 
 # 設定 WebDriver
 
 # 設定 WebDriver
 class stockCrawing:
     def __init__(self,stock=2330,year=5):
+        self.stock = stock
         self.url = "https://goodinfo.tw/tw/StockBzPerformance.asp?STOCK_ID="+str(stock)
         self.year = year
-    def calDividendmethod(self,tableReslut=pd.DataFrame({0:[1,2,3,4,5,6,7,8]})):
-        mean = tableReslut.iloc[:self.year,:].mean()
-        print(mean)
+    def calDividendmethod(self,tableReslut=[]):
+        mean = sum(tableReslut)/len(tableReslut)
         lowest=mean*15
         highest=mean*20
         average=mean*30
@@ -24,20 +26,21 @@ class stockCrawing:
                                                     1:[1,2,3,4,5,6,7,8],
                                                     2:[1,2,3,4,5,6,7,8],
                                                     3:[1,2,3,4,5,6,7,8],})):
-        lowest=tableReslut.iloc[:self.year,1].mean()
-        highest=tableReslut.iloc[:self.year,0].mean()
-        average=tableReslut.iloc[:self.year,3].mean()
+        lowest=float(tableReslut['4'].mean())
+        highest=float(tableReslut['3'].mean())
+        average=float(tableReslut['6'].mean())
         return [lowest, average, highest]
     def calBPSmethod(self,tableReslut):
-        lowest=tableReslut.iloc[:self.year,2].mean()
-        highest=tableReslut.iloc[:self.year,1].mean()
-        average=tableReslut.iloc[:self.year,3].mean()
+        BPS=tableReslut['13'][0]
+        lowest=float(tableReslut['15'].mean()*BPS)
+        highest=float(tableReslut['14'].mean()*BPS)
+        average=float(tableReslut['16'].mean()*BPS)
         return [lowest, average, highest]
     def calPERmethod(self,tableReslut):
-        a=(tableReslut.iloc[0,0]+tableReslut.iloc[:self.year,0].mean())/2
-        lowest=tableReslut.iloc[:self.year,2].mean()*a
-        highest=tableReslut.iloc[:self.year,1].mean()*a
-        average=tableReslut.iloc[:self.year,3].mean()*a
+        a=(tableReslut['9'][0]+tableReslut['9'].mean())/2
+        lowest=float(tableReslut['11'].mean()*a)
+        highest=float(tableReslut['10'].mean()*a)
+        average=float(tableReslut['12'].mean()*a)
         return [lowest, average, highest]
     def getStockDivdend(self):
         options = webdriver.ChromeOptions()
@@ -80,6 +83,7 @@ class stockCrawing:
             div_df  = div_df [div_df [0].str.match(r'^\d{4}$')]
             div_df  = div_df .reset_index(drop=True)
             print(div_df )
+            div_df.to_csv('dividend.csv', index=False)
             # df.insert(0, "Sheet", option.text)  # 加入 Sheet 名稱作為標記
             # all_data = pd.concat([all_data, df], ignore_index=True)
         except Exception as e:
@@ -129,6 +133,7 @@ class stockCrawing:
             df = df[df[0].str.match(r'^\d{4}$')]
             df = df.reset_index(drop=True)
             print(df)
+            df.to_csv('HLP_ERP_PBR.csv', index=False)
             # df.insert(0, "Sheet", option.text)  # 加入 Sheet 名稱作為標記
             # all_data = pd.concat([all_data, df], ignore_index=True)
         except Exception as e:
@@ -140,34 +145,50 @@ class stockCrawing:
         return df
         
     def run(self):
-        StockDivdend=self.getStockDivdend()
-        HLA_ERP_PBR=self.getStockHLP_ERP_PBR()
-        Dividen_result=StockDivdend.iloc[2:,7]
-        HLP_result=HLA_ERP_PBR.iloc[1:,3:7]
-        ERP_result=HLA_ERP_PBR.iloc[1:,9:13]
-        PBR_result=HLA_ERP_PBR.iloc[1:,13:17]
-        print(Dividen_result)
-        print(HLP_result)
-        print(ERP_result)
-        print(PBR_result)
         
-        Dividen_price=self.calDividendmethod(Dividen_result)
-        HLP_price=self.calHLPmethod(HLP_result)
-        ERP_price=self.calPERmethod(ERP_result)
+        # cache_dir = 'cache'
+        # # 如果快取資料夾不存在，則創建它
+        # if not os.path.exists(cache_dir):
+        #     os.makedirs(cache_dir)
+        # if not os.path.exists(os.path.join(cache_dir,f'{}dividend.csv')):
+        #     self.getStockDivdend()
+        # if not os.path.exists('HLP_ERP_PBR.csv'):
+        #     self.getStockHLP_ERP_PBR()
+        #StockDivdend=self.getStockDivdend()
+        StockDivdend=pd.read_csv('dividend.csv')
+        HLP_ERP_PBR=pd.read_csv('HLP_ERP_PBR.csv')
+        # #HLA_ERP_PBR=self.getStockHLP_ERP_PBR()
+        Dividend_result=StockDivdend.iloc[2:2+self.year,7].reset_index(drop=True).astype(float).to_list()
+        HLP_result = HLP_ERP_PBR.iloc[1:1+self.year, 3:7].replace('-', pd.NA).dropna().reset_index(drop=True).astype(float)
+        PER_result=HLP_ERP_PBR.iloc[1:1+self.year,9:13].replace('-', pd.NA).dropna().reset_index(drop=True).astype(float)
+        PBR_result=HLP_ERP_PBR.iloc[1:1+self.year,13:17].replace('-', pd.NA).dropna().reset_index(drop=True).astype(float)
+        Dividend_price=self.calDividendmethod(Dividend_result)
+        HLP_price=self.calHLPmethod(HLP_result)        
+        ERP_price=self.calPERmethod(PER_result)
         PBR_price=self.calBPSmethod(PBR_result)
+        guli_data=Dividend_result
+        selected_columns = pd.concat([HLP_ERP_PBR.iloc[1:, 0], HLP_ERP_PBR.iloc[1:, 3:7]], axis=1)
+        HLP_data=selected_columns.replace('-', pd.NA).dropna().reset_index(drop=True).astype(float).values.tolist()
+        selected_columns = pd.concat([HLP_ERP_PBR.iloc[1:, 0], HLP_ERP_PBR.iloc[1:, 9:13]], axis=1)
+        PER_data=selected_columns.replace('-', pd.NA).dropna().reset_index(drop=True).astype(float).values.tolist()
+        selected_columns = pd.concat([HLP_ERP_PBR.iloc[1:, 0], HLP_ERP_PBR.iloc[1:, 13:17]], axis=1)
+        PBR_data=selected_columns.replace('-', pd.NA).dropna().reset_index(drop=True).astype(float).values.tolist()
+        
         data={
-            '股利法':Dividen_price,
+            '股利法':Dividend_price,
             '高低價法':HLP_price,
             '本淨比法':PBR_price,
             '本益比法':ERP_price,
-            'Guli_data':[],
-            'HighLow_data':[],
-            'Benjing_data':[],
-            'Benyi_data':[]
+            'Guli_data':guli_data,
+            'HighLow_data':HLP_data,
+            'Benjing_data':PBR_data,
+            'Benyi_data':PER_data
         }
-    def test(self):
-        print('test')
-       
+        json_data = json.dumps(data, ensure_ascii=False, indent=4)
+        with open('data.json', 'w', encoding='utf-8') as json_file:
+            json_file.write(json_data)
+            json_file.close()
+        return json_data
 if __name__ == '__main__':
     stock = stockCrawing()
     stock.run()
