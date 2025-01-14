@@ -7,6 +7,7 @@ import talib
 def HW1(request):
     return render(request, 'HW1.html') # 這裡是將
 
+
 def showStock(symbol="AAPL", start="2024-12-1", end="2025-1-10",interval="1d"):
     df = pd.DataFrame(yf.download(symbol, start=start, end=end, interval=interval))
     df_reset = df.droplevel(level='Ticker', axis=1)
