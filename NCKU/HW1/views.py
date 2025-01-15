@@ -66,7 +66,7 @@ def ajax_HW2(request):
     symbol=int(request.GET['id'])
     interval=int(request.GET['year'])
     crawing=stockCrawing(symbol, interval)
-    data=crawing.run()
+    data=crawing.runHW2()
     print(data)
     
     return JsonResponse(data, json_dumps_params={'ensure_ascii': False, 'indent': 4})
