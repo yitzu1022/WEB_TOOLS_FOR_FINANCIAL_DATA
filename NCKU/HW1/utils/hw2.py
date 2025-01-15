@@ -197,6 +197,6 @@ class stockCrawing:
         #     json_file.close()
         # return json_data
 if __name__ == '__main__':
-    stock = stockCrawing()
+    stock = stockCrawing(2454,5)
     stock.run()
 # 設置目標日期
