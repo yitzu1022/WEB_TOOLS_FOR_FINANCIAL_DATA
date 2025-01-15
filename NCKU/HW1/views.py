@@ -3,7 +3,7 @@ from django.http import JsonResponse
 import yfinance as yf
 import pandas as pd
 import talib
-from utils.hw2 import stockCrawing
+from .utils.hw2 import stockCrawing
 # Create your views here.
 def HW1(request):
     return render(request, 'HW1.html') # 這裡是將
@@ -63,8 +63,10 @@ def ajax_showStock(request):
     return JsonResponse(data, safe=False)
 
 def ajax_HW2(request):
-    symbol=request.GET['id']
-    interval=request.GET['year']
+    symbol=int(request.GET['id'])
+    interval=int(request.GET['year'])
     crawing=stockCrawing(symbol, interval)
     data=crawing.run()
-    return JsonResponse(data, son_dumps_params={'ensure_ascii': False, 'indent': 4})
+    print(data)
+    
+    return JsonResponse(data, json_dumps_params={'ensure_ascii': False, 'indent': 4})
