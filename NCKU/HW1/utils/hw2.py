@@ -93,6 +93,7 @@ class stockCrawing:
             stock_info = twstock.realtime.get(str(self.stock))
             bid = float(stock_info['realtime']['best_bid_price'][-1])
             ask = float(stock_info['realtime']['best_ask_price'][-1])
+            realtimPrice = (bid + ask) / 2
         except Exception as e:
             print("Error fetching real-time stock price:", e)
             realtimPrice = twstock.Stock(str(self.stock)).price[-1]
