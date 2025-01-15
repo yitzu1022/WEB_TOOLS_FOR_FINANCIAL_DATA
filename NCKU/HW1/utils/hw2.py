@@ -8,7 +8,7 @@ import time
 import os
 import twstock
 # 設定 WebDriver
-
+#twstock.__update_codes()
 # 設定 WebDriver
 class stockCrawing:
     def __init__(self,stock=2330,year=5):
@@ -90,10 +90,9 @@ class stockCrawing:
             driver.quit()
     def getRealtimStockPrice(self):
         try:
-            stock_info = twstock.realtime.get(self.stock)
+            stock_info = twstock.realtime.get(str(self.stock))
             bid = float(stock_info['realtime']['best_bid_price'][-1])
             ask = float(stock_info['realtime']['best_ask_price'][-1])
-            realtimPrice = (bid + ask) / 2
         except Exception as e:
             print("Error fetching real-time stock price:", e)
             realtimPrice = twstock.Stock(str(self.stock)).price[-1]
@@ -197,6 +196,6 @@ class stockCrawing:
         #     json_file.close()
         # return json_data
 if __name__ == '__main__':
-    stock = stockCrawing()
+    stock = stockCrawing(2337,5)
     stock.run()
 # 設置目標日期
