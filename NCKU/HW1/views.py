@@ -61,8 +61,8 @@ def ajax_showStock(request):
     return JsonResponse(data, safe=False)
 
 def ajax_HW2(request):
-    symbol=request.GET['stock']
-    interval=request.GET['y']
+    symbol=request.GET['id']
+    interval=request.GET['year']
     crawing=stockCrawing(symbol, interval)
     data=crawing.run()
     

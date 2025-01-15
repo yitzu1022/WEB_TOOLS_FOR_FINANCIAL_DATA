@@ -7,7 +7,7 @@ import pandas as pd
 import time
 import json
 import os
-
+import twstock
 # 設定 WebDriver
 
 # 設定 WebDriver
@@ -89,7 +89,17 @@ class stockCrawing:
         finally:
             # 關閉瀏覽器
             driver.quit()
-        
+    def getRealtimStockPrice(self):
+        try:
+            stock_info = twstock.realtime.get(self.stock)
+            bid = float(stock_info['realtime']['best_bid_price'][-1])
+            ask = float(stock_info['realtime']['best_ask_price'][-1])
+            realtimPrice = (bid + ask) / 2
+        except Exception as e:
+            print("Error fetching real-time stock price:", e)
+            realtimPrice = twstock.Stock(str(self.stock)).price[-1]
+            
+        return realtimPrice
     def getStockHLP_PER_PBR(self):
         options = webdriver.ChromeOptions()
         prefs = {
@@ -162,13 +172,14 @@ class stockCrawing:
         PER_price=self.calPERmethod(PER_result)
         PBR_price=self.calBPSmethod(PBR_result)
         
-        guli_data=Dividend_result
-        selected_columns = pd.concat([HLP_PER_PBR.iloc[1:, 0], HLP_PER_PBR.iloc[1:, 3:7]], axis=1)
+        guli_data=StockDivdend.iloc[2:2+self.year,:].reset_index(drop=True).astype(float).values.tolist()
+        selected_columns = pd.concat([HLP_PER_PBR.iloc[1:1+self.year, 0], HLP_PER_PBR.iloc[1:1+self.year, 3:7]], axis=1)
         HLP_data=selected_columns.replace('-', pd.NA).dropna().reset_index(drop=True).astype(float).values.tolist()
-        selected_columns = pd.concat([HLP_PER_PBR.iloc[1:, 0], HLP_PER_PBR.iloc[1:, 9:13]], axis=1)
+        selected_columns = pd.concat([HLP_PER_PBR.iloc[1:1+self.year, 0], HLP_PER_PBR.iloc[1:1+self.year, 9:13]], axis=1)
         PER_data=selected_columns.replace('-', pd.NA).dropna().reset_index(drop=True).astype(float).values.tolist()
-        selected_columns = pd.concat([HLP_PER_PBR.iloc[1:, 0], HLP_PER_PBR.iloc[1:, 13:17]], axis=1)
+        selected_columns = pd.concat([HLP_PER_PBR.iloc[1:1+self.year, 0], HLP_PER_PBR.iloc[1:1+self.year, 13:17]], axis=1)
         PBR_data=selected_columns.replace('-', pd.NA).dropna().reset_index(drop=True).astype(float).values.tolist()
+        realtimPrice=self.getRealtimStockPrice()
         data={
             '股利法':Dividend_price,
             '高低價法':HLP_price,
@@ -177,13 +188,14 @@ class stockCrawing:
             'Guli_data':guli_data,
             'HighLow_data':HLP_data,
             'Benjing_data':PBR_data,
-            'Benyi_data':PER_data
+            'Benyi_data':PER_data,
+            '即時價格':realtimPrice,
         }
-        # json_data = json.dumps(data, ensure_ascii=False, indent=4)
-        # with open('data.json', 'w', encoding='utf-8') as json_file:
-        #     json_file.write(json_data)
-        #     json_file.close()
-        # return json_data
+        json_data = json.dumps(data, ensure_ascii=False, indent=4)
+        with open('data.json', 'w', encoding='utf-8') as json_file:
+            json_file.write(json_data)
+            json_file.close()
+        return json_data
 if __name__ == '__main__':
     stock = stockCrawing()
     stock.run()
