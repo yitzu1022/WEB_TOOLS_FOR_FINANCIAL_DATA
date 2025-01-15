@@ -65,5 +65,4 @@ def ajax_HW2(request):
     interval=request.GET['year']
     crawing=stockCrawing(symbol, interval)
     data=crawing.run()
-    
     return JsonResponse(data, son_dumps_params={'ensure_ascii': False, 'indent': 4})

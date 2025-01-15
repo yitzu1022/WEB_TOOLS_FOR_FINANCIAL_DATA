@@ -191,11 +191,12 @@ class stockCrawing:
             'Benyi_data':PER_data,
             '即時價格':realtimPrice,
         }
-        json_data = json.dumps(data, ensure_ascii=False, indent=4)
-        with open('data.json', 'w', encoding='utf-8') as json_file:
-            json_file.write(json_data)
-            json_file.close()
-        return json_data
+        # json_data = json.dumps(data, ensure_ascii=False, indent=4)
+        return data
+        # with open('data.json', 'w', encoding='utf-8') as json_file:
+        #     json_file.write(json_data)
+        #     json_file.close()
+        # return json_data
 if __name__ == '__main__':
     stock = stockCrawing()
     stock.run()
