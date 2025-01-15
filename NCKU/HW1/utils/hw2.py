@@ -152,7 +152,7 @@ class stockCrawing:
         
     def run(self):
         
-        cache_dir = 'cache'
+        cache_dir = os.path.join('HW1','utils','cache')
         # 如果快取資料夾不存在，則創建它
         if not os.path.exists(cache_dir):
             os.makedirs(cache_dir)
