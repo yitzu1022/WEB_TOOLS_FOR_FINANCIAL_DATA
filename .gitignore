@@ -5,3 +5,4 @@ venv/
 .venv/
 *.sqlite3
 NCKU/HW1/__pycache__/views.cpython-312.pyc
+*.pyc

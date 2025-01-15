@@ -30,7 +30,10 @@ $(document).ready(function () {
           本益比法: response["本益比法"],
         };
         console.log(jsonData);
-        transformDataToSeries(jsonData);
+        // console.log(typeof(response["即時價格"]));
+        // console.log(response["即時價格"]);
+        transformDataToSeries(jsonData, response["即時價格"]);
+        add_data_information(jsonData, response["即時價格"]);
       },
       error: function (xhr, status, error) {
         console.error("Error:", status, error);
@@ -40,14 +43,14 @@ $(document).ready(function () {
 });
 
 // JSON 數據來源(替換成抓下來的資料)
-const jsonData = {
-  股利法: [50, 100, 150, 1000],
-  高低價法: [100, 250, 300, 1000],
-  本淨比法: [200, 300, 550, 1200],
-  本益比法: [100, 500, 600, 1400],
-};
+// const jsonData = {
+//   股利法: [50, 100, 150, 1000],
+//   高低價法: [100, 250, 300, 1000],
+//   本淨比法: [200, 300, 550, 1200],
+//   本益比法: [100, 500, 600, 1400],
+// };
 
-function transformDataToSeries(jsonData) {
+function transformDataToSeries(jsonData, now_price) {
   const categories = [
     "昂貴價值區間",
     "合理到昂貴價值區間",
@@ -55,86 +58,82 @@ function transformDataToSeries(jsonData) {
     "便宜價值區間",
   ];
 
-  const series = categories.map((category, index) => ({
+  const dynamicSeries = categories.map((category, index) => ({
     name: category,
     data: [],
   }));
 
+  const global_max = Math.max(...Object.values(jsonData).flat())
+
   for (const key in jsonData) {
     // 獲取對應的範圍數據
-    const [cheap, cheapToFair, fairToExpensive, expensive] = jsonData[key];
-
+    const [cheap, average, expensive] = jsonData[key];
     // 計算每個區間的範圍值
-    series[3].data.push(cheap); // 便宜價值區間
-    series[2].data.push(cheapToFair - cheap); // 便宜到合理價值區間
-    series[1].data.push(fairToExpensive - cheapToFair); // 合理到昂貴價值區間
-    series[0].data.push(expensive - fairToExpensive); // 昂貴價值區間
+    dynamicSeries[3].data.push(cheap); // 便宜價值區間
+    dynamicSeries[2].data.push(average - cheap); // 便宜到合理價值區間
+    dynamicSeries[1].data.push(expensive - average); // 合理到昂貴價值區間
+    dynamicSeries[0].data.push(global_max - expensive + 500); // 昂貴價值區間
   }
-
-  return series;
-}
-
-// 動態生成的 series 資料
-const dynamicSeries = transformDataToSeries(jsonData);
-
-// 增加 "最新價格" 標籤作為圖例
-dynamicSeries.push({
-  name: "最新價格",
-  data: [], // 不顯示數據
-  color: "black", // 黑色
-  showInLegend: true, // 顯示在圖例中
-});
-
-// 配置 Highcharts
-Highcharts.chart("container", {
-  chart: {
-    type: "bar",
-  },
-  title: {
-    text: "股票定價結果",
-    align: "left",
-  },
-  xAxis: {
-    categories: ["整體法", "高低價法", "本淨比法", "本益比法"], // 與 JSON 的鍵匹配
-  },
-  yAxis: {
-    min: 0,
-    title: {
-      text: "",
+  
+  dynamicSeries.push({
+    name: "最新價格",
+    data: [], // 不顯示數據
+    color: "black", // 黑色
+    showInLegend: true, // 顯示在圖例中
+  });
+  
+  // 配置 Highcharts
+  Highcharts.chart("container", {
+    chart: {
+      type: "bar",
     },
-    plotLines: [
-      {
-        color: "black", // 垂直線的顏色
-        width: 2, // 線的寬度
-        value: 950, // 最新價格的位置（設定數值）
-        dashStyle: "Solid", // 實線
-        label: {
-          text: "最新價格", // 標籤文字
-          align: "right",
-          style: {
-            color: "black",
-            fontWeight: "bold",
+    title: {
+      text: "股票定價結果",
+      align: "left",
+    },
+    xAxis: {
+      categories: ["整體法", "高低價法", "本淨比法", "本益比法"], // 與 JSON 的鍵匹配
+    },
+    yAxis: {
+      min: 0,
+      max: Math.max(now_price, Math.max(...Object.values(jsonData).flat())) + 500,
+      title: {
+        text: "",
+      },
+      plotLines: [
+        {
+          color: "black", // 垂直線的顏色
+          width: 2, // 線的寬度
+          value: now_price, // 最新價格的位置（設定數值）
+          dashStyle: "Solid", // 實線
+          label: {
+            text: "最新價格", // 標籤文字
+            align: "right",
+            style: {
+              color: "black",
+              fontWeight: "bold",
+            },
           },
         },
-      },
-    ],
-  },
-  legend: {
-    reversed: true,
-  },
-  plotOptions: {
-    bar: {
-      pointWidth: 30, // 固定每條柱狀圖的寬度
+      ],
     },
-    series: {
-      stacking: "normal",
-      dataLabels: {
-        enabled: false,
+    legend: {
+      reversed: true,
+    },
+    plotOptions: {
+      bar: {
+        pointWidth: 30, // 固定每條柱狀圖的寬度
+      },
+      series: {
+        stacking: "normal",
+        dataLabels: {
+          enabled: false,
+        },
       },
     },
-  },
-  series: dynamicSeries, // 使用動態生成的 series
-});
+    series: dynamicSeries, // 使用動態生成的 series
+  });
+}
 
 // 四張圖
 document.addEventListener("DOMContentLoaded", () => {
@@ -156,37 +155,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // 動態生成表格
 // 定義 JSON 資料
-const Guli_data = {
-  2024: [2024, 5, 0, 5, 0, 0, 0, 5],
-  2023: [2023, 5.1, 0, 5.1, 0, 0, 0, 5.1],
-  2022: [2022, 4.5, 0, 4.5, 0, 0, 0, 4.5],
-  2021: [2021, 3.3, 0, 3.3, 0, 0, 0, 3.3],
-  2020: [2020, 2.3, 0, 2.3, 0, 0, 0, 2.3],
-};
+// const Guli_data = {
+//   2024: [2024, 5, 0, 5, 0, 0, 0, 5],
+//   2023: [2023, 5.1, 0, 5.1, 0, 0, 0, 5.1],
+//   2022: [2022, 4.5, 0, 4.5, 0, 0, 0, 4.5],
+//   2021: [2021, 3.3, 0, 3.3, 0, 0, 0, 3.3],
+//   2020: [2020, 2.3, 0, 2.3, 0, 0, 0, 2.3],
+// };
 
-const HighLow_data = {
-  2024: [2024, 1, 5, 3, 4],
-  2023: [2024, 5.1, 0, 5.1, 5],
-  2022: [2024, 4.5, 0, 4.5, 5],
-  2021: [2024, 3.3, 0.5, 3.3, 0.5],
-  2020: [2024, 2.3, 0, 2.3, 2],
-};
+// const HighLow_data = {
+//   2024: [2024, 1, 5, 3, 4],
+//   2023: [2024, 5.1, 0, 5.1, 5],
+//   2022: [2024, 4.5, 0, 4.5, 5],
+//   2021: [2024, 3.3, 0.5, 3.3, 0.5],
+//   2020: [2024, 2.3, 0, 2.3, 2],
+// };
 
-const Benjing_data = {
-  2024: [2024, 5, 0, 0, 0],
-  2023: [2024, 0, 0, 0, 5.1],
-  2022: [2024, 0, 0, 0, 4.5],
-  2021: [2024, 0, 0, 0, 3.3],
-  2020: [2024, 0, 0, 0, 2.3],
-};
+// const Benjing_data = {
+//   2024: [2024, 5, 0, 0, 0],
+//   2023: [2024, 0, 0, 0, 5.1],
+//   2022: [2024, 0, 0, 0, 4.5],
+//   2021: [2024, 0, 0, 0, 3.3],
+//   2020: [2024, 0, 0, 0, 2.3],
+// };
 
-const Benyi_data = [
-  [2024, 10, 5, 3, 4],
-  [2024, 1, 0, 5.1, 5],
-  [2024, 4, 0, 4.5, 5],
-  [2024, 3, 0.5, 3.3, 0.5],
-  [2024, 12.3, 0, 2.3, 2],
-];
+// const Benyi_data = [
+//   [2024, 10, 5, 3, 4],
+//   [2024, 1, 0, 5.1, 5],
+//   [2024, 4, 0, 4.5, 5],
+//   [2024, 3, 0.5, 3.3, 0.5],
+//   [2024, 12.3, 0, 2.3, 2],
+// ];
 
 // 定義表格標題
 const Guli_tableHeaders = [
@@ -216,6 +215,8 @@ const Benyi_tableHeaders = ["年度", "EPS(元)", "最高PER", "最低PER", "平
 function generateTable(data, containerId, headers) {
   const container = document.getElementById(containerId);
 
+  // 清空容器內的內容，避免累積多個表格
+  container.innerHTML = "";
   // 創建表格
   const table = document.createElement("table");
   table.className = "table table-bordered";
@@ -255,3 +256,30 @@ function generateTable(data, containerId, headers) {
 // generateTable(Benjing_data, 'table-container-3', Benjing_tableHeaders); // 本淨比法
 //   generateTable(Benyi_data, "table-container-4", Benyi_tableHeaders); // 本益比法
 // });
+
+// 填入資料
+function add_data_information(data, now_price){
+  $("#Guli_cheap").text(data['股利法'][0]);
+  $("#Guli_middle").text(data['股利法'][1]);
+  $("#Guli_expensive").text(data['股利法'][2]);
+  $("#Guli_current").text(now_price);
+  $("#Guli_cheap_price").text(data['股利法'][0]);
+
+  $("#HighLow_cheap").text(data['高低價法'][0]);
+  $("#HighLow_middle").text(data['高低價法'][1]);
+  $("#HighLow_expensive").text(data['高低價法'][2]);
+  $("#HighLow_current").text(now_price);
+  $("#HighLow_cheap_price").text(data['高低價法'][0]);
+
+  $("#Benjing_cheap").text(data['本淨比法'][0]);
+  $("#Benjing_middle").text(data['本淨比法'][1]);
+  $("#Benjing_expensive").text(data['本淨比法'][2]);
+  $("#Benjing_current").text(now_price);
+  $("#Benjing_cheap_price").text(data['本淨比法'][0]);
+
+  $("#Benyi_cheap").text(data['本益比法'][0]);
+  $("#Benyi_middle").text(data['本益比法'][1]);
+  $("#Benyi_expensive").text(data['本益比法'][2]);
+  $("#Benyi_current").text(now_price);
+  $("#Benyi_cheap_price").text(data['本益比法'][0]);
+}

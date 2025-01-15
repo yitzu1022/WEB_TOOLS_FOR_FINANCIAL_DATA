@@ -18,8 +18,8 @@ class stockCrawing:
     def calDividendmethod(self,tableReslut=[]):
         mean = sum(tableReslut)/len(tableReslut)
         lowest=mean*15
-        highest=mean*20
-        average=mean*30
+        average=mean*20
+        highest=mean*30
         return [lowest, average, highest]
     def calHLPmethod(self,tableReslut):
         lowest=float(tableReslut['4'].mean())
