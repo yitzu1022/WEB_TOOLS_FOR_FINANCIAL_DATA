@@ -143,6 +143,8 @@ class stockCrawing:
         PER_price=self.calPERPrice(PERData.iloc[0,4],PER_ratio['1'])
         realtimPrice=self.getRealtimStockPrice()
         PER_ratio_list = PER_ratio.values.flatten().tolist()
+        EPS=PERData.iloc[0,4].astype(float)
+        PER_ratio_list.append(EPS)
         OHLCResult = pd.concat([OHLCData['0'], OHLCData.iloc[:,2:6]], axis=1)
         #print(OHLCResult)
         OHLCResult = OHLCResult.replace('-', pd.NA).dropna().reset_index(drop=True).values.tolist()
