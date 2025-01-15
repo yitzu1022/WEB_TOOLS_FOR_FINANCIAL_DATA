@@ -23,6 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('sum/', sum_view.sum),
     path('HW1/', HW1_view.HW1),
+    path('HW2/', HW1_view.HW2),
     path('ajax_sum/', sum_view.ajax_sum),
     path('ajax_showStock/', HW1_view.ajax_showStock),
+    path('ajax_stockprice/', HW1_view.ajax_stockprice),
 ]
