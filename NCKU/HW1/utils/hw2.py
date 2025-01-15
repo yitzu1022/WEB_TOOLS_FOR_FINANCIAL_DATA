@@ -90,7 +90,7 @@ class stockCrawing:
             driver.quit()
     def getRealtimStockPrice(self):
         try:
-            stock_info = twstock.realtime.get(self.stock)
+            stock_info = twstock.realtime.get(str(self.stock))
             bid = float(stock_info['realtime']['best_bid_price'][-1])
             ask = float(stock_info['realtime']['best_ask_price'][-1])
             realtimPrice = (bid + ask) / 2
@@ -197,6 +197,6 @@ class stockCrawing:
         #     json_file.close()
         # return json_data
 if __name__ == '__main__':
-    stock = stockCrawing(2454,5)
+    stock = stockCrawing(2337,5)
     stock.run()
 # 設置目標日期
