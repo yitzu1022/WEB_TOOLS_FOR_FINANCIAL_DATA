@@ -85,8 +85,7 @@ def ajax_HW3_1(request):
     range=request.GET['range']
     crawing=stockCrawingV3(id, range)
     data=crawing.run()
-    print(data)
-    return JsonResponse(data,json_dumps_params={'ensure_ascii': False, 'indent': 4}) # 這裡是將 response 這個字典回傳給使用者
+    return JsonResponse(data,json_dumps_params={'ensure_ascii': False, 'indent': 4,},safe=False) # 這裡是將 response 這個字典回傳給使用者
 
 def ajax_HW3_3(request):
     a=int(request.GET['id'])
