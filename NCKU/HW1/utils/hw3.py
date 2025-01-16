@@ -145,7 +145,7 @@ class stockCrawing:
         PER_price=self.calPERPrice(PERData.iloc[0,4],PER_ratio['1'])
         realtimPrice=self.getRealtimStockPrice()
         PER_ratio_list = PER_ratio.values.flatten().tolist()
-        EPS=PERData.iloc[0,4].astype(float)
+        EPS=float(PERData.iloc[0,4].astype(float))
         PER_ratio_list.append(EPS)
         
         for i in range(len(OHLCData['0'])):
@@ -162,6 +162,21 @@ class stockCrawing:
                 year = int("20" + value[:2])
                 month = int(value[3:])
                 OHLCData.loc[i, '0'] = datetime(year, month, 1).timestamp()*1000
+         
+        for i in range(len(PERData['0'])):
+            value = PERData.loc[i, '0']
+            if re.match(r'^\d{4}$', value):
+                 PERData.loc[i, '0']=datetime(int(value),1,1).timestamp()*1000
+            elif re.match(r'^\d{2}Q\d{2}$', value):
+                year = int("20" + value[:2])
+                quarter = int(value[3:])
+                month = (quarter - 1) * 3 + 1
+                PERData.loc[i, '0'] = datetime(year, month, 1).timestamp()*1000
+            elif re.match(r'^\d{2}M\d{2}$', value):
+                # 如果是月份，設置為該月的第一天
+                year = int("20" + value[:2])
+                month = int(value[3:])
+                PERData.loc[i, '0'] = datetime(year, month, 1).timestamp()*1000
         
         OHLCResult = pd.concat([OHLCData['0'], OHLCData.iloc[:,2:6]], axis=1)
         #print(OHLCResult)
@@ -177,12 +192,12 @@ class stockCrawing:
             'PER_data':PERResult,
             'realtimPrice':realtimPrice,
         }
-        json_data = json.dumps(data, ensure_ascii=False, indent=4)
-        #return data
-        with open('data.json', 'w', encoding='utf-8') as json_file:
-            json_file.write(json_data)
-            json_file.close()
-        #return json_data
+        # json_data = json.dumps(data, ensure_ascii=False, indent=4)
+        # #return data
+        # with open('data.json', 'w', encoding='utf-8') as json_file:
+        #     json_file.write(json_data)
+        #     json_file.close()
+        return data
 if __name__ == '__main__':
     stock = stockCrawing()
     stock.run()
