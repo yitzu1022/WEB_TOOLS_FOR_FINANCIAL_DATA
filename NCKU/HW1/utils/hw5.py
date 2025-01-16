@@ -49,7 +49,6 @@ class Technical_Indicators():
         self.getRSI()
         self.getADX_DIP_DIM()
         self.getKForm()
-        
         self.data = self.data.reset_index(drop=False)
         return  self.data.to_json(orient='values')
         

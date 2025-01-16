@@ -93,13 +93,15 @@ $(document).ready(function () {
   });
 });
 function renderGrahic(dataObject) {
-  console.log(dataObject);
   renderDataTable(dataObject);
   renderBollingerBands(dataObject);
   renderMACD(dataObject);
   renderRSI(dataObject);
   renderKD(dataObject);
   renderADX_DMI(dataObject);
+  renderStar(dataObject);
+  renderThree(dataObject);
+  renderEngufing(dataObject);
 }
 function renderDataTable(dataObject) {
   // 構建表格數據
@@ -203,7 +205,6 @@ function renderBollingerBands(dataObject) {
     ["month", [1, 2, 3, 4, 6]],
   ];
 
-  console.log(ohlc);
   // create the chart
   Highcharts.stockChart("Historical", {
     rangeSelector: {
@@ -824,6 +825,263 @@ function renderADX_DMI(dataObject) {
         yAxis: 1,
         dataGrouping: {
           units: groupingUnits,
+        },
+      },
+    ],
+  });
+}
+function renderStar(dataObject) {
+  let chart = "Star";
+  // 準備數據
+  var ohlc = [];
+  var EveningStar = [];
+
+  var overBoughtSignal = [];
+  var overSoldSignal = [];
+  dataObject.Date.forEach(function (item, i) {
+    ohlc.push([
+      item,
+      dataObject.ohlc[i][0],
+      dataObject.ohlc[i][1],
+      dataObject.ohlc[i][2],
+      dataObject.ohlc[i][3],
+    ]);
+    if (dataObject.EveningStar[i] != 0) {
+      //   console.log(item);
+      EveningStar.push([item, dataObject.EveningStar[i]]);
+    }
+  });
+  groupingUnits = [
+    [
+      "week", // unit name
+      [1], // allowed multiples
+    ],
+    ["month", [1, 2, 3, 4, 6]],
+  ];
+  // create the chart
+  Highcharts.stockChart(chart, {
+    rangeSelector: {
+      selected: 4,
+    },
+
+    title: {
+      text: chart,
+    },
+
+    yAxis: [
+      {
+        labels: {
+          align: "right",
+          x: -3,
+        },
+        title: {
+          text: "OHLC",
+        },
+        height: "80%",
+        lineWidth: 2,
+        resize: {
+          enabled: true,
+        },
+      },
+    ],
+
+    tooltip: {
+      split: true,
+    },
+
+    series: [
+      {
+        type: "candlestick",
+        name: "AAPL",
+        data: ohlc,
+        dataGrouping: {
+          units: groupingUnits,
+        },
+      },
+      {
+        type: "flags",
+        name: chart,
+        data: EveningStar,
+        shape: "triangle",
+        fillColor: "red",
+        dataGrouping: {
+          units: groupingUnits,
+        },
+        style: {
+          color: "white",
+        },
+      },
+    ],
+  });
+}
+function renderThree(dataObject) {
+  let chart = "Three";
+  // 準備數據
+  var ohlc = [];
+  var TAS = [];
+  var TBC = [];
+
+  var overBoughtSignal = [];
+  var overSoldSignal = [];
+  dataObject.Date.forEach(function (item, i) {
+    ohlc.push([
+      item,
+      dataObject.ohlc[i][0],
+      dataObject.ohlc[i][1],
+      dataObject.ohlc[i][2],
+      dataObject.ohlc[i][3],
+    ]);
+    if (dataObject.TAS[i] != 0) {
+      //   console.log(item);
+      TAS.push([item, dataObject.TAS[i]]);
+    }
+    if (dataObject.TBC[i] != 0) {
+      //   console.log(item);
+      TBC.push([item, dataObject.TBC[i]]);
+    }
+  });
+  groupingUnits = [
+    [
+      "week", // unit name
+      [1], // allowed multiples
+    ],
+    ["month", [1, 2, 3, 4, 6]],
+  ];
+  // create the chart
+  Highcharts.stockChart(chart, {
+    rangeSelector: {
+      selected: 4,
+    },
+
+    title: {
+      text: chart,
+    },
+
+    yAxis: [
+      {
+        labels: {
+          align: "right",
+          x: -3,
+        },
+        title: {
+          text: "OHLC",
+        },
+        height: "80%",
+        lineWidth: 2,
+        resize: {
+          enabled: true,
+        },
+      },
+    ],
+
+    tooltip: {
+      split: true,
+    },
+
+    series: [
+      {
+        type: "candlestick",
+        name: "AAPL",
+        data: ohlc,
+        dataGrouping: {
+          units: groupingUnits,
+        },
+      },
+      {
+        type: "flags",
+        name: chart,
+        data: TAS,
+        shape: "triangle",
+        fillColor: "green",
+        dataGrouping: {
+          units: groupingUnits,
+        },
+        style: {
+          color: "white",
+        },
+      },
+    ],
+  });
+}
+function renderEngufing(dataObject) {
+  let chart = "Engufing";
+  // 準備數據
+  var ohlc = [];
+  var Engufing = [];
+
+  var overBoughtSignal = [];
+  var overSoldSignal = [];
+  dataObject.Date.forEach(function (item, i) {
+    ohlc.push([
+      item,
+      dataObject.ohlc[i][0],
+      dataObject.ohlc[i][1],
+      dataObject.ohlc[i][2],
+      dataObject.ohlc[i][3],
+    ]);
+    if (dataObject.Engufing[i] != 0) {
+      //   console.log(item);
+      Engufing.push([item, dataObject.Engufing[i]]);
+    }
+  });
+  groupingUnits = [
+    [
+      "week", // unit name
+      [1], // allowed multiples
+    ],
+    ["month", [1, 2, 3, 4, 6]],
+  ];
+  // create the chart
+  Highcharts.stockChart(chart, {
+    rangeSelector: {
+      selected: 4,
+    },
+
+    title: {
+      text: chart,
+    },
+
+    yAxis: [
+      {
+        labels: {
+          align: "right",
+          x: -3,
+        },
+        title: {
+          text: "OHLC",
+        },
+        height: "80%",
+        lineWidth: 2,
+        resize: {
+          enabled: true,
+        },
+      },
+    ],
+
+    tooltip: {
+      split: true,
+    },
+
+    series: [
+      {
+        type: "candlestick",
+        name: "AAPL",
+        data: ohlc,
+        dataGrouping: {
+          units: groupingUnits,
+        },
+      },
+      {
+        type: "flags",
+        name: chart,
+        data: Engufing,
+        shape: "triangle",
+        fillColor: "green",
+        dataGrouping: {
+          units: groupingUnits,
+        },
+        style: {
+          color: "white",
         },
       },
     ],
