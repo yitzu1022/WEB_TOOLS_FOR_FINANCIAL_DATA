@@ -4,6 +4,7 @@ import yfinance as yf
 import pandas as pd
 import talib
 from .utils.hw2 import stockCrawing
+from .utils.hw3 import stockCrawing as stockCrawingV3
 # Create your views here.
 def HW1(request):
     return render(request, 'HW1.html') # 這裡是將
@@ -79,10 +80,13 @@ def ajax_HW2(request):
 
 # 測試用
 def ajax_HW3_1(request):
-    a=int(request.GET['id'])
+    id=int(request.GET['id'])
     # b=request.GET['range']
-    response = {'ans': a}
-    return JsonResponse(response) # 這裡是將 response 這個字典回傳給使用者
+    range=request.GET['range']
+    crawing=stockCrawingV3(id, range)
+    data=crawing.run()
+    print(data)
+    return JsonResponse(data,json_dumps_params={'ensure_ascii': False, 'indent': 4}) # 這裡是將 response 這個字典回傳給使用者
 
 def ajax_HW3_3(request):
     a=int(request.GET['id'])
