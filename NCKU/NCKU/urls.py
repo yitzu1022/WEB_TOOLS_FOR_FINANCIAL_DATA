@@ -24,7 +24,11 @@ urlpatterns = [
     path('sum/', sum_view.sum),
     path('HW1/', HW1_view.HW1),
     path('HW2/', HW1_view.HW2),
+    path('HW3_1/', HW1_view.HW3_1),
+    path('HW3_3/', HW1_view.HW3_3),
     path('ajax_sum/', sum_view.ajax_sum),
     path('ajax_showStock/', HW1_view.ajax_showStock),
     path('ajax_stockprice/', HW1_view.ajax_HW2),
+    path('ajax_PER/', HW1_view.ajax_HW3_1),
+    path('ajax_index/', HW1_view.ajax_HW3_3),
 ]
