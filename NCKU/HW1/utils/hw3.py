@@ -8,6 +8,8 @@ import time
 import os
 import twstock
 import json
+from datetime import datetime
+import re
 # 設定 WebDriver
 #twstock.__update_codes()
 # 設定 WebDriver
@@ -145,6 +147,22 @@ class stockCrawing:
         PER_ratio_list = PER_ratio.values.flatten().tolist()
         EPS=PERData.iloc[0,4].astype(float)
         PER_ratio_list.append(EPS)
+        
+        for i in range(len(OHLCData['0'])):
+            value = OHLCData.loc[i, '0']
+            if re.match(r'^\d{4}$', value):
+                 OHLCData.loc[i, '0']=datetime(int(value),1,1).timestamp()*1000
+            elif re.match(r'^\d{2}Q\d{2}$', value):
+                year = int("20" + value[:2])
+                quarter = int(value[3:])
+                month = (quarter - 1) * 3 + 1
+                OHLCData.loc[i, '0'] = datetime(year, month, 1).timestamp()*1000
+            elif re.match(r'^\d{2}M\d{2}$', value):
+                # 如果是月份，設置為該月的第一天
+                year = int("20" + value[:2])
+                month = int(value[3:])
+                OHLCData.loc[i, '0'] = datetime(year, month, 1).timestamp()*1000
+        
         OHLCResult = pd.concat([OHLCData['0'], OHLCData.iloc[:,2:6]], axis=1)
         #print(OHLCResult)
         OHLCResult = OHLCResult.replace('-', pd.NA).dropna().reset_index(drop=True).values.tolist()
