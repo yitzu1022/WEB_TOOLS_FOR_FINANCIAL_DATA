@@ -5,6 +5,7 @@ import pandas as pd
 import talib
 from .utils.hw2 import stockCrawing
 from .utils.hw3 import stockCrawing as stockCrawingV3
+from .utils.hw5 import Technical_Indicators
 # Create your views here.
 def HW1(request):
     return render(request, 'HW1.html') # 這裡是將
@@ -88,7 +89,13 @@ def ajax_HW3_1(request):
     return JsonResponse(data,json_dumps_params={'ensure_ascii': False, 'indent': 4,},safe=False) # 這裡是將 response 這個字典回傳給使用者
 
 def ajax_HW3_3(request):
-    a=int(request.GET['id'])
-    # b=request.GET['range']
-    response = {'ans': a}
-    return JsonResponse(response) # 這裡是將 response 這個字典回傳給使用者
+    
+    stock=str(request.GET['stock'])
+    start=str(request.GET['start_date'])
+    end=str(request.GET['end_date'])
+    interval=str(request.GET['d'])+"d"
+    
+    indicators=Technical_Indicators(stock, start, end, interval)
+    response = indicators.run()
+    print("response success")
+    return JsonResponse(response, json_dumps_params={'ensure_ascii': False, 'indent': 4}, safe=False) # 這裡是將 response 這個字典回傳給使用者
