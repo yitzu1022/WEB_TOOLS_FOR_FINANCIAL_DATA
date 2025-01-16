@@ -26,7 +26,9 @@
             type: 'POST',
             url: '/day3/day3_result/',
             dataType: 'json',
-            data: {},
+            data: {
+                
+            },
             success: function (response) {
                 var support = response.support;
                 var resistance = response.resistance;
@@ -46,15 +48,7 @@
                 const supports2 = [];
                 const resistances2 = [];
                 const movingAverage = [];
-                const annotations = annotations_labels.map(label => ({
-                    point: {
-                        x: label.x, // Date value
-                        y: null,    // No Y-coordinate since it's text
-                    },
-                    text: label.text
-                }));
 
-                // Prepare the OHLC data
                 for (let i = 0; i < Kline.length; i++) {
                     ohlc.push([
                         Kline[i][0], // Date
@@ -67,10 +61,25 @@
 
                 // Prepare the Volume data
                 for (let i = 0; i < volume.length; i++) {
-                    volumes.push([
-                        volume[i][0], // Date
-                        volume[i][1]  // Volume
-                    ]);
+                    const date = volume[i][0]; // Extract the date from the volume data
+
+                    // Find if there is an annotation for this date
+                    const matchingAnnotation = annotations_labels.find(label => label.x === date);
+
+                    // Determine the color based on the annotation's title
+                    let volumeColor = 'grey'; // Default color
+                    if (matchingAnnotation) {
+                        if (matchingAnnotation.title === "+") {
+                            volumeColor = 'red';
+                        } else if (matchingAnnotation.title === "-") {
+                            volumeColor = 'green';
+                        }
+                    }
+                    volumes.push({
+                        x: date,
+                        y: volume[i][1],
+                        color: volumeColor
+                    });
                 }
 
                 // Prepare the Support and Resistance data
@@ -90,6 +99,7 @@
                 // Prepare Moving Average data
                 for (let i = 0; i < ma.length; i++) {
                     movingAverage.push([ma[i][0], ma[i][1]]);
+                    // console.log(`MA Data: Date = ${movingAverage[i][0]}, MA = ${movingAverage[i][1]}`);
                 }
 
                 // Plot the data
@@ -105,6 +115,7 @@
                         { title: { text: 'Volume' }, top: '70%', height: '30%', offset: 0 }
                     ],
                     series: [
+
                         {
                             type: 'candlestick',
                             name: 'Stock',
@@ -112,6 +123,12 @@
                             yAxis: 0,
                             color: 'red',
                             upColor: 'green',
+                        },
+                        {
+                            type: 'flags',
+                            name: 'Crossover',
+                            data: annotations_labels, 
+                            allowOverlapX: !0
                         },
                         {
                             type: 'line',
@@ -165,15 +182,12 @@
                             name: 'Volume',
                             data: volumes,
                             yAxis: 1,
-                            color: 'lightgrey'
+                            color: 'grey'
                         }
                     ],
                     tooltip: {
                         split: true
                     },
-                    annotations: [{
-                        labels: annotations
-                    }]
                 });
             },
             error: function () {
