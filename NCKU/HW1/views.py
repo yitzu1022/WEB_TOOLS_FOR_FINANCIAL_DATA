@@ -353,6 +353,12 @@ def day3(request):
     return render(request,'day3.html')
 
 def day3_result(request):
+    print(request.GET)
+    stock_num = request.GET['stock']
+    start_date = request.GET['start_date']
+    ma_type = request.GET['ma_type']
+    ma_len = int(request.GET['ma_length'])
+    method = request.GET['method']
     content = sky_plot(stock_num,start_date,ma_type,ma_len,method)
     print(content)
     return JsonResponse(content)

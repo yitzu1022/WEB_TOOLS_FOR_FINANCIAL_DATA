@@ -10,7 +10,12 @@
 </script>
 
 <button type="button" id="searchButton" onclick="search()">Submit</button>
-
+<input type="text" id="stock" value="1301" />
+<input type="date" id="startDate" value="2023-01-01" />
+<input type="text" id="ma_type" value="sma" />
+<input type="number" id="ma_length" value="3" />
+<input type="text" id="method" value="method3" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.highcharts.com/stock/highstock.js"></script>
 <script src="https://code.highcharts.com/stock/modules/drag-panes.js"></script>
 <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
@@ -20,12 +25,27 @@
 
 <script>
   function search() {
+    const stock = document.getElementById("stock").value;
+    const startDate = document.getElementById("startDate").value;
+    const ma_type = document.getElementById("ma_type").value;
+    const ma_length = document.getElementById("ma_length").value;
+    const method = document.getElementById("method").value;
+
+    const formData = {};
+
+    formData.stock = stock;
+    formData.start_date = startDate;
+    formData.ma_type = ma_type;
+    formData.ma_length = ma_length;
+    formData.method = method;
+    console.log(formData);
+
     $.ajax({
       headers: { "X-CSRFToken": csrf_token },
-      type: "POST",
-      url: "ajax_day3/",
+      type: "GET",
+      url: "/ajax_day3/",
       dataType: "json",
-      data: {},
+      data: formData,
       success: function (response) {
         var support = response.support;
         var resistance = response.resistance;
