@@ -31,4 +31,6 @@ urlpatterns = [
     path('ajax_stockprice/', HW1_view.ajax_HW2),
     path('ajax_PER/', HW1_view.ajax_HW3_1),
     path('ajax_index/', HW1_view.ajax_HW3_3),
+    path('HW3_2/', HW1_view.day3),
+    path('ajax_day3/', HW1_view.day3_result),
 ]

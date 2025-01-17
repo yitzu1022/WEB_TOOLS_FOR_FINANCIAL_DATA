@@ -49,9 +49,9 @@ class Technical_Indicators():
         self.getRSI()
         self.getADX_DIP_DIM()
         self.getKForm()
-        print(self.data)
         self.data = self.data.reset_index(drop=False)
-        self.data.to_json(os.path.join('cache', f'{self.symbol}_KD.json'), orient='values')
+        return  self.data.to_json(orient='values')
+        
 
 if __name__ == '__main__':
     indicators=Technical_Indicators()

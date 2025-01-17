@@ -96,17 +96,17 @@ def Method1(row_data,volumn,ma,ma_len,table_data):
         ma_o.append([row_data["Date"][i],round(ma[i],2)])
         resistance.append([row_data["Date"][i],round((1 + pos_BIAS_val) * ma[i],2)])
 
-        if float(row_data["Close"][i]) < support[i - ma_len][1]:
+        if float(row_data["Close"][i]) > resistance[i - ma_len][1]:
             annotations_labels.append({
                 "x" : row_data["Date"][i],
-                "title" : "X",
+                "title" : "+",
                 "text" : "穿越天花板線"
             })
 
-        if float(row_data["Close"][i]) > support[i - ma_len][1]:
+        if float(row_data["Close"][i]) < support[i - ma_len][1]:
             annotations_labels.append({
                 "x" : row_data["Date"][i],
-                "title" : "X",
+                "title" : "-",
                 "text" : "穿越地板線"
             })
 
@@ -147,17 +147,17 @@ def Method2(row_data,volumn,ma,ma_len,table_data):
         resistance.append([row_data["Date"][i],round(resistance_value,2)])
         ma_o.append([row_data["Date"][i],round(ma[i],2)])
 
-        if float(row_data["Close"][i]) < support[i - ma_len][1]:
+        if float(row_data["Close"][i]) > resistance[i - ma_len][1]:
             annotations_labels.append({
                 "x" : row_data["Date"][i],
-                "title" : "X",
+                "title" : "+",
                 "text" : "穿越天花板線"
             })
 
-        if float(row_data["Close"][i]) > support[i - ma_len][1]:
+        if float(row_data["Close"][i]) < support[i - ma_len][1]:
             annotations_labels.append({
                 "x" : row_data["Date"][i],
-                "title" : "X",
+                "title" : "-",
                 "text" : "穿越地板線"
             })
 
@@ -194,20 +194,6 @@ def Method3(row_data,volumn,ma,ma_len,table_data):
         ma_o.append([row_data["Date"][i],round(ma[i],2)])
         resistance.append([row_data["Date"][i],round((1 + pos_BIAS_val) * ma[i],2)])
 
-        if float(row_data["Close"][i]) < support[i - ma_len][1]:
-            annotations_labels.append({
-                "x" : row_data["Date"][i],
-                "title" : "X",
-                "text" : "穿越天花板線"
-            })
-
-        if float(row_data["Close"][i]) > support[i - ma_len][1]:
-            annotations_labels.append({
-                "x" : row_data["Date"][i],
-                "title" : "X",
-                "text" : "穿越地板線"
-            })
-
     pos_BIAS_val2 = float(pos_BIAS[int(len(pos_BIAS) * 0.99) - 1])
     neg_BIAS_val2 = float(neg_BIAS[int(len(neg_BIAS) * 0.01) - 1])
     support2 = []
@@ -217,17 +203,17 @@ def Method3(row_data,volumn,ma,ma_len,table_data):
         support2.append([row_data["Date"][i],round((1 + neg_BIAS_val2)*ma[i],2)])
         resistance2.append([row_data["Date"][i],round((1 + pos_BIAS_val2) * ma[i],2)])
 
-        if float(row_data["Close"][i]) < support2[i - ma_len][1]:
+        if float(row_data["Close"][i]) > resistance2[i - ma_len][1]:
             annotations_labels.append({
                 "x" : row_data["Date"][i],
-                "title" : "X",
+                "title" : "+",
                 "text" : "穿越天花板線"
             })
 
-        if float(row_data["Close"][i]) > support2[i - ma_len][1]:
+        if float(row_data["Close"][i]) < support2[i - ma_len][1]:
             annotations_labels.append({
                 "x" : row_data["Date"][i],
-                "title" : "X",
+                "title" : "-",
                 "text" : "穿越地板線"
             })
     row_data = row_data.drop(columns = ["Volume"])
@@ -251,5 +237,5 @@ def day3(request):
 
 def day3_result(request):
     content = sky_plot(stock_num,start_date,ma_type,ma_len,method)
-    print(content)
+    # print(content)
     return JsonResponse(content)
