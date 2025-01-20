@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Day3_3{% endblock %}
+{% block content %}
+<style>
+    .delete-button {
+        padding: 10px 20px;
+        border: none;
+        background-color: #f85252;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100px;
+        height: 40px;
+    }
+    .review-button {
+        padding: 10px 20px;
+        border: none;
+        background-color: #116f14;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100px;
+        height: 40px;
+    }
+
+
+
+</style>
+
+<script>csrf_token = "{{ csrf_token }}";</script>
+<div style="width: 80%;  margin: 0 auto;">
+    <div class="card"> 
+        <div class="card-header">
+            <h3 style="text-align:center"><b>Track List for day3_3</b></h3> 
+        </div>  
+        <div class="card-body">
+
+
+        <!-- Display Data in DataTable -->
+        <table id="Database_Table1" class="display" style="text-align: center;">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Stock Inductor</th>
+                    <th>Start Date Inductor</th>
+                    <th>End Date Inductor</th>
+                    <th>Days</th>
+                    <th>Delete</th>
+                    <th>Review Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+
+                    <td>{{ row.username }}</td>
+                    <td>{{ row.stock_inductor }}</td>
+                    <td>{{ row.start_date_inductor }}</td>
+                    <td>{{ row.end_date_inductor }}</td>
+                    <td>{{ row.d }}</td>
+                    <td>
+                        <!-- Delete Button -->
+                        <button class="delete-button" 
+                                data-id="{{ row.id }}" 
+                                data-username="{{ row.username }}" 
+                                data-stock-inductor="{{ row.stock_inductor }}" 
+                                data-start-date="{{ row.start_date_inductor }}" 
+                                data-end-date="{{ row.end_date_inductor }}" 
+                                data-d="{{ row.d }}">
+                            Delete
+                        </button>
+                    </td>
+                    <td>
+                        <button class="review-button"
+                            data-username="{{ row.username }}"
+                            data-stock-inductor="{{ row.stock_inductor }}"
+                            data-start-date="{{ row.start_date_inductor }}"
+                            data-end-date="{{ row.end_date_inductor }}"
+                            data-d="{{ row.d }}">
+                            Review Result
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>    
+
+<!-- Initialize DataTable -->
+<script>
+    $(document).ready(function() {
+        $('#Database_Table1').DataTable({
+            "paging": true,   // Enable/disable pagination
+            "searching": true, // Enable/disable search
+            "ordering": true, // Enable/disable column sorting
+            "pageLength": 10  // Number of rows per page
+        });
+
+
+        $(".delete-button").click(function() {
+            var user_name_var = $(this).data("username");
+            var stock_inductor_var = $(this).data("stock-inductor");
+            var start_date_inductor_var = $(this).data("start-date");
+            var end_date_inductor_var = $(this).data("end-date");
+            var d_var = $(this).data("d");
+
+            // Ask for confirmation before deleting
+            if (confirm("Are you sure you want to delete this row?")) {
+                $.ajax({
+                    headers: { 'X-CSRFToken': csrf_token },
+                    method: 'POST',
+                    url: '/day3_3/delete-track-data/',  // Add the URL to your delete view
+                    dataType: 'json',
+                    data: {
+                        'user_name_var': user_name_var,
+                        'stock_inductor_var': stock_inductor_var,
+                        'start_date_inductor_var': start_date_inductor_var,
+                        'end_date_inductor_var': end_date_inductor_var,
+                        'd_var': d_var
+                    },
+                    success: function(response) {
+                        alert('Data deleted successfully.');
+                        location.reload();  // Reload the page to reflect the changes
+                    },
+                    error: function() {
+                        alert('Something went wrong.');
+                    }
+                });
+            }
+        });
+
+        $(".review-button").click(function() {
+            var username = $(this).data("username");
+            var stockInductor = $(this).data("stock-inductor");
+            var startDateInductor = $(this).data("start-date");
+            var endDateInductor = $(this).data("end-date");
+            var d = $(this).data("d");
+
+            // Store data in localStorage
+            localStorage.setItem("username", username);
+            localStorage.setItem("stockInductor", stockInductor);
+            localStorage.setItem("startDateInductor", startDateInductor);
+            localStorage.setItem("endDateInductor", endDateInductor);
+            localStorage.setItem("d", d);
+
+            // Optionally, navigate to the day3_3 page
+            window.location.href = "/day3_3/";  // Redirect to the day3_3 page
+        });
+
+
+    });
+</script>
+</div>
+{% endblock %}
